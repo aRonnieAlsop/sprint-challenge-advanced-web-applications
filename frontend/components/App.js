@@ -5,6 +5,9 @@ import LoginForm from './LoginForm'
 import Message from './Message'
 import ArticleForm from './ArticleForm'
 import Spinner from './Spinner'
+import axios from 'axios'
+import axiosWithAuth from '../axios'
+
 
 const articlesUrl = 'http://localhost:9000/api/articles'
 const loginUrl = 'http://localhost:9000/api/login'
@@ -18,58 +21,134 @@ export default function App() {
 
   // ✨ Research `useNavigate` in React Router v.6
   const navigate = useNavigate()
-  const redirectToLogin = () => { /* ✨ implement */ }
-  const redirectToArticles = () => { /* ✨ implement */ }
+  const redirectToLogin = () => { navigate('/') }
+  const redirectToArticles = () => { navigate('/articles') }
 
   const logout = () => {
     // ✨ implement
     // If a token is in local storage it should be removed,
+    if (localStorage.getItem('token')){
+      localStorage.removeItem('token')
+    }
     // and a message saying "Goodbye!" should be set in its proper state.
+    setMessage('Goodbye!')
     // In any case, we should redirect the browser back to the login screen,
+    redirectToLogin()
     // using the helper above.
+   
   }
 
   const login = ({ username, password }) => {
     // ✨ implement
     // We should flush the message state, turn on the spinner
+    setMessage('')
+    setSpinnerOn(true)
     // and launch a request to the proper endpoint.
+    axios.post(loginUrl, { username: username.trim(), password: password.trim() })
     // On success, we should set the token to local storage in a 'token' key,
-    // put the server success message in its proper state, and redirect
-    // to the Articles screen. Don't forget to turn off the spinner!
+    .then((response) => {
+      localStorage.setItem('token', response.data.token)
+      // put the server success message in its proper state, and redirect
+      setMessage(response.data.message)
+      // to the Articles screen. Don't forget to turn off the spinner!
+      setSpinnerOn(false)
+      redirectToArticles()
+    })
+    .catch((error) => {
+      console.log('Error:', error)
+    })
   }
 
   const getArticles = () => {
     // ✨ implement
     // We should flush the message state, turn on the spinner
+    setMessage('')
+    setSpinnerOn(true)
     // and launch an authenticated request to the proper endpoint.
+    axiosWithAuth()
+      .get('/articles')
     // On success, we should set the articles in their proper state and
     // put the server success message in its proper state.
+      .then((response) => {
+        setArticles(res.data.articles)
+        setMessage(res.data.message)
+        setSpinnerOn(false)
+      })
     // If something goes wrong, check the status of the response:
     // if it's a 401 the token might have gone bad, and we should redirect to login.
-    // Don't forget to turn off the spinner!
-  }
+      .catch((error) => {
+        if (error.status === 401) {
+          redirectToLogin()
+        }
+        // Don't forget to turn off the spinner!
+        setSpinnerOn(false)
+      })
+    }
 
   const postArticle = article => {
     // ✨ implement
     // The flow is very similar to the `getArticles` function.
+    setMessage('')
+    setSpinnerOn(true)
     // You'll know what to do! Use log statements or breakpoints
     // to inspect the response from the server.
+    axiosWithAuth()
+      .get('/articles')
+      .then((response) => {
+        setArticles(res.data.articles)
+        setMessage(res.data.message)
+        setSpinnerOn(false)
+      })
+      .catch((error) => {
+        console.error('Error:', error)
+        setSpinnerOn(false)
+      })
   }
 
   const updateArticle = ({ article_id, article }) => {
     // ✨ implement
     // You got this!
+    setMessage('')
+    setSpinnerOn(true)
+    axiosWithAuth().put(`/articles/${article_id}`, article)
+      .then((response) => {
+        setMessage(res.data.message)
+        setArticles(articles.map(article => {
+          if (article.article_id === response.data.article.article_id) {
+            return response.data.article
+          } else {
+            return article
+          }
+        }))
+        setSpinnerOn(false)
+      })
+      .catch((error) => {
+        console.error('Error:', error)
+      })
   }
 
   const deleteArticle = article_id => {
     // ✨ implement
+    setMessage('')
+    setSpinnerOn(true)
+    axiosWithAuth().delete(`/articles/${article_id}`)
+      .then((response) => {
+        setArticles(articles.filter((article) => {
+          article.article_id !== article_id
+        }))
+        setMessage(response.data.message)
+        setSpinnerOn(false)
+      })
+      .catch((error) => {
+        console.error('Error:', error)
+      })
   }
 
   return (
     // ✨ fix the JSX: `Spinner`, `Message`, `LoginForm`, `ArticleForm` and `Articles` expect props ❗
     <>
-      <Spinner />
-      <Message />
+      <Spinner on={spinnerOn}/>
+      <Message message={message}/>
       <button id="logout" onClick={logout}>Logout from app</button>
       <div id="wrapper" style={{ opacity: spinnerOn ? "0.25" : "1" }}> {/* <-- do not change this line */}
         <h1>Advanced Web Applications</h1>
@@ -78,11 +157,22 @@ export default function App() {
           <NavLink id="articlesScreen" to="/articles">Articles</NavLink>
         </nav>
         <Routes>
-          <Route path="/" element={<LoginForm />} />
+          <Route path="/" element={<LoginForm login={login}/>} />
           <Route path="articles" element={
             <>
-              <ArticleForm />
-              <Articles />
+              <ArticleForm 
+                postArticle={postArticle}
+                updateArticle={updateArticle}
+                setCurrentArticleId={setCurrentArticleId}
+                // currentArticle={currentArtcle}
+              />
+              <Articles 
+                articles={articles}
+                getArticles={getArticles}
+                setCurrentArticleId={setCurrentArticleId}
+                currentArticleId={currentArticleId}
+                deleteArticle={deleteArticle}
+              />
             </>
           } />
         </Routes>
