@@ -160,12 +160,14 @@ export default function App() {
           <Route path="/" element={<LoginForm login={login}/>} />
           <Route path="articles" element={
             <>
-              <ArticleForm 
-                postArticle={postArticle}
-                updateArticle={updateArticle}
-                setCurrentArticleId={setCurrentArticleId}
-                // currentArticle={currentArtcle}
+              <ArticleForm
+                  postArticle={postArticle}
+                  updateArticle={updateArticle}
+                  setCurrentArticleId={setCurrentArticleId}
+                  currentArticleId={currentArticleId}
+                  currentArticle={articles.find(article => article.article_id === currentArticleId)}
               />
+
               <Articles 
                 articles={articles}
                 getArticles={getArticles}
