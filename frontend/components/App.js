@@ -70,8 +70,8 @@ export default function App() {
     // On success, we should set the articles in their proper state and
     // put the server success message in its proper state.
       .then((response) => {
-        setArticles(res.data.articles)
-        setMessage(res.data.message)
+        setArticles(response.data.articles)
+        setMessage(response.data.message)
         setSpinnerOn(false)
       })
     // If something goes wrong, check the status of the response:
@@ -95,8 +95,8 @@ export default function App() {
     axiosWithAuth()
       .get('/articles')
       .then((response) => {
-        setArticles(res.data.articles)
-        setMessage(res.data.message)
+        setArticles(response.data.articles)
+        setMessage(response.data.message)
         setSpinnerOn(false)
       })
       .catch((error) => {
@@ -112,7 +112,7 @@ export default function App() {
     setSpinnerOn(true)
     axiosWithAuth().put(`/articles/${article_id}`, article)
       .then((response) => {
-        setMessage(res.data.message)
+        setMessage(response.data.message)
         setArticles(articles.map(article => {
           if (article.article_id === response.data.article.article_id) {
             return response.data.article
