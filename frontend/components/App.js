@@ -135,12 +135,14 @@ export default function App() {
       .then((response) => {
         setArticles(articles.filter((article) => {
           article.article_id !== article_id
+          setMessage(response.data.message)
+          setSpinnerOn(false)
         }))
-        setMessage(response.data.message)
-        setSpinnerOn(false)
+       
       })
       .catch((error) => {
         console.error('Error:', error)
+        setSpinnerOn(false)
       })
   }
 
