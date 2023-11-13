@@ -12,15 +12,16 @@ export default function ArticleForm(props) {
 
   useEffect(() => {
     // ✨ implement
-    // Every time the `currentArticle` prop changes, we should check it for truthiness:
+    // Every time the `currentArticleId` prop changes, we should check it for truthiness:
     if (currentArticleId) {
-      setValues(currentArticleId)
+      setValues(currentArticleId); // Assuming currentArticleId is an object with properties title, text, and topic
     } else {
-      setValues(initialFormValues)
+      setValues(initialFormValues);
     }
-    // if it's truthy, we should set its title, text and topic into the corresponding
+    // if it's truthy, we should set its title, text, and topic into the corresponding
     // values of the form. If it's not, we should reset the form back to initial values.
-  }, [currentArticleId])
+  }, [currentArticleId]);
+  
 
   const onChange = evt => {
     const { id, value } = evt.target
@@ -35,15 +36,17 @@ export default function ArticleForm(props) {
     if (currentArticleId) {
       updateArticle({ article_id: currentArticleId.article_id, article: values})
     } else {
-      postArticle(values)
+      postArticle({ article: values });
+
     }
   }
 
   const isDisabled = () => {
-     // ✨ implement
-    // Make sure the inputs have some values
-    return !(values.title.trim().length >= 1 && values.text.trim().length >= 1 && values.topic);
-  }
+    // ✨ implement
+    // Make sure the inputs have some values and a valid topic is selected
+    return !(values.title.trim().length >= 1 && values.text.trim().length >= 1 && values.topic !== '');
+  };
+  
 
 
   return (

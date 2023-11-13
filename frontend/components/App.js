@@ -93,9 +93,9 @@ export default function App() {
     // You'll know what to do! Use log statements or breakpoints
     // to inspect the response from the server.
     axiosWithAuth()
-      .get('/articles')
+      .post('/articles', article)
       .then((response) => {
-        setArticles(response.data.articles)
+        setArticles([...articles, response.data.article])
         setMessage(response.data.message)
         setSpinnerOn(false)
       })
@@ -133,18 +133,16 @@ export default function App() {
     setSpinnerOn(true)
     axiosWithAuth().delete(`/articles/${article_id}`)
       .then((response) => {
-        setArticles(articles.filter((article) => {
-          article.article_id !== article_id
-          setMessage(response.data.message)
-          setSpinnerOn(false)
-        }))
-       
+        setArticles(articles.filter((article) => article.article_id !== article_id))
+        setMessage(response.data.message)
+        setSpinnerOn(false)
       })
       .catch((error) => {
         console.error('Error:', error)
         setSpinnerOn(false)
       })
   }
+  
 
   return (
     // ✨ fix the JSX: `Spinner`, `Message`, `LoginForm`, `ArticleForm` and `Articles` expect props ❗
