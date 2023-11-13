@@ -41,23 +41,36 @@ export default function ArticleForm(props) {
 
   const onSubmit = evt => {
     evt.preventDefault()
-    // ✨ implement
-    // We must submit a new post or update an existing one,
-    // depending on the truthyness of the `currentArticle` prop.
+    
+    // Check if the values have changed
     if (currentArticleId) {
-      updateArticle({ article_id: currentArticleId.article_id, article: values})
+      // Find the current article by ID
+      const currentArticle = props.currentArticle
+  
+      if (
+        currentArticle &&
+        (values.title !== currentArticle.title ||
+          values.text !== currentArticle.text ||
+          values.topic !== currentArticle.topic)
+      ) {
+        // Only update if there are changes
+        updateArticle({ article_id: currentArticle.article_id, article: values })
+      }
+      setCurrentArticleId() // Clear the currentArticleId
     } else {
+      // Create a new article if currentArticleId is not set
       postArticle(values)
-      setCurrentArticleId()
-      setValues(initialFormValues)
     }
+  
+    setValues(initialFormValues) // Reset the form
   }
+  
 
   const isDisabled = () => {
     // ✨ implement
     // Make sure the inputs have some values and a valid topic is selected
     return !(values.title.trim().length >= 1 && values.text.trim().length >= 1 && values.topic !== '');
-  };
+  }
   
 
 
